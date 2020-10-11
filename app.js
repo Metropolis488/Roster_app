@@ -10,9 +10,9 @@ const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
 
-manager();
-async function manager() {
-    const {name, id, email, officeNumber, position} = await inquirer.prompt([
+employee();
+async function employee() {
+    const {name, id, email, position} = await inquirer.prompt([
         {
             message: "What is the employee's name?",
             name: "name"
@@ -26,16 +26,46 @@ async function manager() {
             name: "email"
         },
         {
-            message: "What is the manager's office phone number?",
-            name: "officeNumber"
-        },
-        {
             type: "list",
             message: "What type of employee is this?",
             name: "position",
             choices: ["manager", new inquirer.Separator(), "engineer", new inquirer.Separator(), "intern"]
         }
     ])
+    switch(position) {
+        case "manager":
+            const {officeNumber} = await inquirer.prompt([{
+                message: "What is the manager's office phone number?",
+                name: "officeNumber"
+            }])
+            return addManager(name, id, email, officeNumber)
+        case "engineer":
+            const {github} = await inquirer.prompt([{
+                message: "What is the engineer's github account?",
+                name: "github"
+            }])
+            return addEngineer(name, id, email, github);
+        case "intern":
+            const {school} = await inquirer.prompt([{
+                message: "What is the intern's school?",
+                name: "school"
+            }])
+            return addIntern(name, id, email, school);
+    }
+
+    function addManager(name, id, email, officeNumber) {
+        const manager = new Manager(name, id, email, officeNumber);
+    }
+
+    function addEngineer(name, id, email, github) {
+        const engineer = new Engineer(name, id, email, github);
+    }
+
+    function addIntern(name, id, email, school) {
+        const intern = new Intern(name, id, email, school);
+    }
+    
+    render();
 }
 
 
