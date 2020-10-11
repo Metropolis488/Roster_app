@@ -10,12 +10,37 @@ const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
 
-roster();
-async function roster() {
-    const {} = await inquirer.prompt([{
-        
-    }])
+manager();
+async function manager() {
+    const {name, id, email, officeNumber, position} = await inquirer.prompt([
+        {
+            message: "What is the employee's name?",
+            name: "name"
+        },
+        {
+            message: "What is the employee's ID?",
+            name: "id"
+        },
+        {
+            message: "What is the employee's email address?",
+            name: "email"
+        },
+        {
+            message: "What is the manager's office phone number?",
+            name: "officeNumber"
+        },
+        {
+            type: "list",
+            message: "What type of employee is this?",
+            name: "position",
+            choices: ["manager", new inquirer.Separator(), "engineer", new inquirer.Separator(), "intern"]
+        }
+    ])
 }
+
+
+// const manager = new Manager()
+
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
 
