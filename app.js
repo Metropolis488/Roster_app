@@ -10,9 +10,45 @@ const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
 
-employee();
-async function employee() {
-    const {name, id, email, position} = await inquirer.prompt([
+var roster = [];
+
+addManager()
+async function addManager() {
+    const {name, id, email, officeNumber, additional} = await inquirer.prompt([
+        {
+            message: "What is the manager's name?",
+            name: "name"
+        },
+        {
+            message: "What is the manager's ID?",
+            name: "id"
+        },
+        {
+            message: "What is the manager's email address?",
+            name: "email"
+        },
+        {
+            message: "What is the manager's office number?",
+            name: "officeNumber"
+        },
+        {
+            type: "list",
+            message: "Would you like add more team members?",
+            name: "additional",
+            choices: ["Yes", new inquirer.Separator(), "No"]
+        }
+    ])
+    roster.push(new Manager(name, id, email, officeNumber));
+    console.log(roster);
+    
+    switch (additional) {
+        case "Yes": return addEmployee();
+        case "No": return createFile();
+    }
+}
+
+async function addEmployee() {
+    const {name, id, email, additional} = await inquirer.prompt([
         {
             message: "What is the employee's name?",
             name: "name"
@@ -23,53 +59,136 @@ async function employee() {
         },
         {
             message: "What is the employee's email address?",
-            name: "email"
+            name: "email" 
         },
         {
             type: "list",
-            message: "What type of employee is this?",
-            name: "position",
-            choices: ["manager", new inquirer.Separator(), "engineer", new inquirer.Separator(), "intern"]
+            message: "Is this employee an engineer or intern?",
+            name: "additional",
+            choices: ["Engineer", new inquirer.Separator(), "Intern"]
         }
     ])
-    switch(position) {
-        case "manager":
-            const {officeNumber} = await inquirer.prompt([{
-                message: "What is the manager's office phone number?",
-                name: "officeNumber"
-            }])
-            return addManager(name, id, email, officeNumber)
-        case "engineer":
-            const {github} = await inquirer.prompt([{
-                message: "What is the engineer's github account?",
-                name: "github"
-            }])
-            return addEngineer(name, id, email, github);
-        case "intern":
-            const {school} = await inquirer.prompt([{
-                message: "What is the intern's school?",
-                name: "school"
-            }])
-            return addIntern(name, id, email, school);
+    switch (additional) {
+        case "Engineer": return addEngineer(name, id, email);
+        case "Intern": return addIntern(name, id, email);
     }
-
-    function addManager(name, id, email, officeNumber) {
-        const manager = new Manager(name, id, email, officeNumber);
-    }
-
-    function addEngineer(name, id, email, github) {
-        const engineer = new Engineer(name, id, email, github);
-    }
-
-    function addIntern(name, id, email, school) {
-        const intern = new Intern(name, id, email, school);
-    }
-    
-    render();
 }
 
+async function addEngineer(name, id, email) {
+    const {github, addMore} = await inquirer.prompt([
+            {
+                message: "What is the employee's github account?",
+                name: "github"
+            },
+            {
+                type: "list",
+                message: "Would you like to add another employee?",
+                name: "addMore",
+                choices: ["Yes", new inquirer.Separator(), "No"]
+            }
+        ]);
+        roster.push(new Engineer(name, id, email, github));
+        console.log(roster);
+        switch(addMore) {
+            case "Yes": addEmployee();
+            case "No": return createFile();
+        }
+    }
 
-// const manager = new Manager()
+async function addIntern(name, id, email) {
+    const {school, addMore} = await inquirer.prompt([
+        {
+            message: "What is the employee's school?",
+            name: "school"
+        },
+        {
+            type: "list",
+            message: "Would you like to add another employee?",
+            name: "addMore",
+            choices: ["Yes", new inquirer.Separator(), "No"]
+        }
+    ]);
+    roster.push(new Intern(name, id, email, school));
+    console.log(roster);
+    switch(addMore) {
+        case "Yes": addEmployee();
+        case "No": return createFile();
+    };
+};
+
+console.log(roster);
+
+function createFile() {
+    const finalPage = await render(roster);
+    await fs.writeFile(outputPath, finalPage, () => {});
+};
+
+// employee();
+// async function employee() {
+//     const {name, id, email, position} = await inquirer.prompt([
+//         {
+//             message: "What is the employee's name?",
+//             name: "name"
+//         },
+//         {
+//             message: "What is the employee's ID?",
+//             name: "id"
+//         },
+//         {
+//             message: "What is the employee's email address?",
+//             name: "email"
+//         },
+//         {
+//             type: "list",
+//             message: "What type of employee is this?",
+//             name: "position",
+//             choices: ["manager", new inquirer.Separator(), "engineer", new inquirer.Separator(), "intern"]
+//         }
+//     ])
+//     switch(position) {
+//         case "manager":
+//             const {officeNumber} = await inquirer.prompt([{
+//                 message: "What is the manager's office phone number?",
+//                 name: "officeNumber"
+//             }])
+//             return addManager(name, id, email, officeNumber)
+//         case "engineer":
+//             const {github} = await inquirer.prompt([{
+//                 message: "What is the engineer's github account?",
+//                 name: "github"
+//             }])
+//             return addEngineer(name, id, email, github);
+//         case "intern":
+//             const {school} = await inquirer.prompt([{
+//                 message: "What is the intern's school?",
+//                 name: "school"
+//             }])
+//             return addIntern(name, id, email, school);
+//     }
+
+//     function addManager(name, id, email, officeNumber) {
+//         roster.push(new Manager(name, id, email, officeNumber));
+//         console.log(roster);
+//     }
+
+//     function addEngineer(name, id, email, github) {
+//         new Engineer(name, id, email, github);
+//     }
+
+//     function addIntern(name, id, email, school) {
+//         new Intern(name, id, email, school);
+//     }
+    
+//     const finalPage = await render(roster);
+//     // getIt(finalPage);
+//     console.log(finalPage);
+//     // function getIt(finalPage) {fs.writeFile(`team.html`, finalPage, () => {});}
+//     await fs.writeFile(outputPath, `${finalPage}`, () => {});
+// }
+
+
+
+
 
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
