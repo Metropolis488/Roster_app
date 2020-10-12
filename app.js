@@ -39,11 +39,10 @@ async function addManager() {
         }
     ])
     roster.push(new Manager(name, id, email, officeNumber));
-    console.log(roster);
     
     switch (additional) {
-        case "Yes": return addEmployee();
-        case "No": return createFile();
+        case "Yes": addEmployee();
+        case "No": createFile();
     }
 }
 
@@ -69,31 +68,30 @@ async function addEmployee() {
         }
     ])
     switch (additional) {
-        case "Engineer": return addEngineer(name, id, email);
-        case "Intern": return addIntern(name, id, email);
+        case "Engineer": addEngineer(name, id, email);
+        case "Intern": addIntern(name, id, email);
     }
 }
 
 async function addEngineer(name, id, email) {
     const {github, addMore} = await inquirer.prompt([
-            {
-                message: "What is the employee's github account?",
-                name: "github"
-            },
-            {
-                type: "list",
-                message: "Would you like to add another employee?",
-                name: "addMore",
-                choices: ["Yes", new inquirer.Separator(), "No"]
-            }
-        ]);
-        roster.push(new Engineer(name, id, email, github));
-        console.log(roster);
-        switch(addMore) {
-            case "Yes": addEmployee();
-            case "No": return createFile();
+        {
+            message: "What is the employee's github account?",
+            name: "github"
+        },
+        {
+            type: "list",
+            message: "Would you like to add another employee?",
+            name: "addMore",
+            choices: ["Yes", new inquirer.Separator(), "No"]
         }
+    ]);
+    roster.push(new Engineer(name, id, email, github));
+    switch(addMore) {
+        case "Yes": addEmployee();
+        case "No": createFile();
     }
+}
 
 async function addIntern(name, id, email) {
     const {school, addMore} = await inquirer.prompt([
@@ -109,10 +107,9 @@ async function addIntern(name, id, email) {
         }
     ]);
     roster.push(new Intern(name, id, email, school));
-    console.log(roster);
     switch(addMore) {
         case "Yes": addEmployee();
-        case "No": return createFile();
+        case "No": createFile();
     };
 };
 
